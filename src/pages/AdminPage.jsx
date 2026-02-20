@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { 
-  collection, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
   doc,
   query,
   orderBy,
@@ -30,7 +30,6 @@ const AdminPage = () => {
   // Form states
   const [showCycleForm, setShowCycleForm] = useState(false);
   const [showTopicForm, setShowTopicForm] = useState(false);
-  const [showUserForm, setShowUserForm] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [showLibraryForm, setShowLibraryForm] = useState(false);
   const [editingLibraryId, setEditingLibraryId] = useState(null);
@@ -67,12 +66,6 @@ const AdminPage = () => {
     videoEmbed: '',
     pdfEmbed: '',
     order: 0
-  });
-
-  const [userForm, setUserForm] = useState({
-    email: '',
-    password: '',
-    isAdmin: false
   });
 
   const [emailForm, setEmailForm] = useState({
@@ -1405,49 +1398,79 @@ Fisiologia Humana | Fisiologia | CODIGO_DO_DRIVE | https://...`}
           </div>
         )}
 
-        {activeTab === 'users' && (
+        {activeTab === 'emails' && (
           <div className={styles.content}>
             <div className={styles.header}>
-              <h2>Usuários</h2>
+              <h2>E-mails Permitidos</h2>
               <button
                 className={styles.addButton}
-                onClick={() => setShowUserForm(!showUserForm)}
+                onClick={() => setShowEmailForm(!showEmailForm)}
               >
-                + Novo Usuário
+                + Adicionar E-mail
               </button>
             </div>
 
-            {showUserForm && (
-              <form onSubmit={handleCreateUser} className={styles.form}>
+            {showEmailForm && (
+              <form onSubmit={handleCreateEmail} className={styles.form}>
                 <input
                   type="email"
                   placeholder="E-mail"
-                  value={userForm.email}
-                  onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                  value={emailForm.email}
+                  onChange={(e) => setEmailForm({ ...emailForm, email: e.target.value })}
                   required
-                />
-                <input
-                  type="password"
-                  placeholder="Senha"
-                  value={userForm.password}
-                  onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
-                  required
-                  minLength={6}
                 />
                 <label className={styles.checkboxLabel}>
                   <input
                     type="checkbox"
-                    checked={userForm.isAdmin}
-                    onChange={(e) => setUserForm({ ...userForm, isAdmin: e.target.checked })}
+                    checked={emailForm.isAdmin}
+                    onChange={(e) => setEmailForm({ ...emailForm, isAdmin: e.target.checked })}
                   />
                   Administrador
                 </label>
                 <div className={styles.formActions}>
-                  <button type="submit">Criar</button>
-                  <button type="button" onClick={() => setShowUserForm(false)}>Cancelar</button>
+                  <button type="submit">Adicionar</button>
+                  <button type="button" onClick={() => setShowEmailForm(false)}>Cancelar</button>
                 </div>
               </form>
             )}
+
+            <div className={styles.list}>
+              {allowedEmails.map((emailDoc) => (
+                <div key={emailDoc.id} className={styles.item}>
+                  <div className={styles.itemContent}>
+                    <h3>{emailDoc.email}</h3>
+                    <p>
+                      {emailDoc.isAdmin && <span className={styles.badge}>Admin</span>}
+                      {emailDoc.addedAt && (
+                        <span className={styles.lastAccess}>
+                          Adicionado em: {emailDoc.addedAt.toDate?.().toLocaleString('pt-BR') || 'Data desconhecida'}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div className={styles.itemActions}>
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => handleDeleteEmail(emailDoc.id)}
+                    >
+                      Remover
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'users' && (
+          <div className={styles.content}>
+            <div className={styles.header}>
+              <h2>Usuários Cadastrados</h2>
+              <p className={styles.infoText}>
+                Os usuários são criados automaticamente quando fazem login com Google.<br/>
+                Use a aba "E-mails Permitidos" para controlar quem pode acessar o sistema.
+              </p>
+            </div>
 
             <div className={styles.list}>
               {users.map((user) => (
@@ -1457,9 +1480,9 @@ Fisiologia Humana | Fisiologia | CODIGO_DO_DRIVE | https://...`}
                     <p>
                       {user.isAdmin && <span className={styles.badge}>Admin</span>}
                       {user.blocked && <span className={styles.badgeBlocked}>Bloqueado</span>}
-                      {user.lastAccess && (
+                      {user.lastLogin && (
                         <span className={styles.lastAccess}>
-                          Último acesso: {user.lastAccess.toDate?.().toLocaleString('pt-BR') || 'Nunca'}
+                          Último login: {user.lastLogin.toDate?.().toLocaleString('pt-BR') || 'Nunca'}
                         </span>
                       )}
                     </p>
